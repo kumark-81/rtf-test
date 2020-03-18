@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<file:config name="File_Config" doc:name="File Config" doc:id="023d7739-727d-45ac-abaf-f6613b573d96" >
+		<file:connection workingDir="/src/main/resources"/>
+	</file:config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="b7276477-31a8-4d26-adef-e34a93b5f8c2" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<!-- <flow name="rtf-file-testFlow1" doc:id="151d9dd1-f412-4b78-a2a5-ff0174745a32" >
+		<file:listener doc:name="On New or Updated File" doc:id="a9142f88-0278-4dc1-865b-0a04aa6cf46b" config-ref="File_Config" directory="C:\Users\enz422l\Documents\source" autoDelete="true">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+			<file:matcher filenamePattern="*.txt" />
+		</file:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="b6de9b87-60c3-46fe-bdd3-3daf40f30be3" message="#[payload]"/>
+	</flow> -->
+	<global-property doc:name="Global Property" doc:id="53ed06f3-117d-4961-b6a3-d4791a956a96" name="mule.env" value="local" />
+	<configuration-properties doc:name="Configuration properties" doc:id="e8513834-332e-47f7-90c6-7f31b1aaf7a1" file="${mule.env}.properties" />
+	<flow name="rtf-file-testFlow" doc:id="c2a96d1b-19b6-44ae-923d-d908b34658a1" >
+		<http:listener doc:name="Listener" doc:id="cbbe3105-84b3-44ae-9361-f47faf113692" config-ref="HTTP_Listener_config" path="/fileTest"/>
+<!-- 		<file:read doc:name="Read" doc:id="da8793d8-514a-4024-a206-3561ef21b88f" config-ref="File_Config" path="/samplefile.txt"/> -->
+		<ee:transform doc:name="Transform Message" doc:id="51926027-a34f-46b3-82f9-4fd29b2d0fd8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+readUrl("classpath://samplefile.txt","text/plain")]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
